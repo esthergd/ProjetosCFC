@@ -9,16 +9,23 @@ import random
 def main():
     try:
         com1 = enlace('/dev/ttyACM0')
-
         com1.enable()
+        command1 = b'\x00'
+        command2 = [b'\x00',b'\xFF']
+        command3 = b'\x0F'
+        command4 = b'\xF0'
+        command5 = b'\xFF'
+        command6 = [b'\xFF',b'\x00']
 
         n = random.randint(10,30)
-        commands = [b'00FF', b'00',b'0F',b'F0',b'FF00',b'FF']
-        list_commands = list()
-        for i in range (n):
-            list_commands.append(random.choice(commands))
-            commands_array = np.asarray(list_commands)
-            return commands_array
+        commands = [command1,command2,command3,command4,command5,command6]
+        list_commands = []
+        for i in range(n):
+            list_commands += random.choice(commands)
+            return list_commands
+
+        com1.sendData(list_commands)
+        print(list_commands)
 
     except Exception as erro:
         print("ops! :-\\")
