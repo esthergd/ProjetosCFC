@@ -29,15 +29,15 @@ def main():
     try:
         #declaramos um objeto do tipo enlace com o nome "com". Essa é a camada inferior à aplicação. Observe que um parametro
         #para declarar esse objeto é o nome da porta.
-        com1 = enlace('COM5')
+        com1 = enlace('/dev/ttyACM0')
 
         #Criamos um local para salvarmos a cópia da imagem
         imagemCopia = "./imagemCopia.jpg"
 
         #Carregamos a imagem no txBuffer
-        with open('ferroImagem.jpg', 'rb') as imagem:
-            txBuffer = imagem.read()
-        print(len(txBuffer))
+        # with open('ferroImagem.jpg', 'rb') as imagem:
+        #     txBuffer = imagem.read()
+        # print(len(txBuffer))
 
         # Ativa comunicacao. Inicia os threads e a comunicação seiral
         com1.enable()
