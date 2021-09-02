@@ -6,17 +6,21 @@ def main():
         com1 = enlace('/dev/ttyACM0')
         com1.enable()
         com1.rx.clearBuffer()
-        listResult = []
+        resultados = []
 
         rxBuffer, nRx = com1.getData(1)
         com1.rx.clearBuffer()
 
         while True:
             rxBuffer, nRx = com1.getData(1)
-            if rxBuffer == b'\x':
+            if rxBuffer == b'\xAA':
                 break
             elif rxBuffer == b'\xBB':
-                com1.getData(2)
+                rxBuffer, nRx = com1.getData(2)
+                resultados.append(rxBuffer)
+            else:
+                resultados.append(rxBuffer)
+        print(resultados)
 
     except Exception as erro:
         print("ops! :-\\")
