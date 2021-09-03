@@ -36,6 +36,14 @@ def main():
 
         time.sleep(1)
 
+        while True:
+            rxBuffer, nRx = com1.getData(1)
+            if len(rxBuffer) > 0:
+                break
+
+        print(rxBuffer)
+
+
         com1.disable()
 
     except Exception as erro:

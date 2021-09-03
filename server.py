@@ -1,5 +1,5 @@
 from enlace import enlace
-
+import time
 
 def main():
     try:
@@ -22,7 +22,11 @@ def main():
             else:
                 resultados.append(rxBuffer)
         print(resultados)
-        print(com1.rx.getBufferLen())
+
+        com1.sendData(len(resultados))
+
+        time.sleep(1)
+
         com1.disable()
         
     except Exception as erro:
