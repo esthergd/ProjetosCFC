@@ -22,19 +22,18 @@ class Pacotes():
     def constroiPacotes(self):
         return (self.head + self.payload + self. eop)
 
+class Head(): 
 
-class Head():
+    def __init__(self):
 
-    def __init__(self, tamanho, nPacote, totalPacotes, tipo):
-
-        self.tamanho = tamanho
-        self.nPacote = nPacote
-        self.total = totalPacotes
-        self.tipo = tipo
+        self.tamanho = payload.tamanhoPacote()
+        self.nPacote = payload.nPacote()
+        self.total = payload.totalPacotes()
+        #self.tipo = tipo
 
 
     def constroiHead(self):
-        return (self.tamanho + self.nPacote + self.total + self.tipo)
+        return (self.tamanho + self.nPacote + self.total)
     
 class Payload():
 
@@ -42,27 +41,45 @@ class Payload():
         self.conteudo = conteudo
 
     def quebraPacote(self):
-        lista_pacotes = []
+        self.lista_pacotes = []
 
         for length in range(self.totalPacotes()):
-            lista_pacotes.append([self.conteudo[length*114:(length+1)*114]])
+            self.lista_pacotes.append([self.conteudo[length*114:(length+1)*114]])
 
-        return lista_pacotes
+        return self.lista_pacotes
+
+    def tamanhoPacote(self):
+        self.tamanho=[]
+
+        for length in range(len(self.quebraPacote())):
+            self.tamanho.append(len(Payload.quebraPacote(self)[length][0]))
+        
+        return self.tamanho
+    
+    def nPacote(self):
+        self.nPacote = []
+
+        for length in range(len(self.tamanhoPacote())):
+            self.nPacote.append(length + 1)
+        return self.nPacote
+
 
     def totalPacotes(self):
-        pacote = len(self.conteudo)/114
-        if type (pacote) == float:
-            pacote = ceil(pacote)
-        return pacote
+        self.pacote = len(self.conteudo)/114
+        if type (self.pacote) == float:
+            self.pacote = ceil(self.pacote)
+        return self.pacote
 
 class EOP():
 
     def __init__(self):
         self.fim = [b'\x00', b'\x00',b'\x00', b'\x00']
 
-
-# payload = Payload(imageBytes)
+payload = Payload(imageBytes)
 # head = Head()
 
-# print(len(payload.quebraPacote()[0][0]))
-# print(len(payload.quebraPacote()[-1][0]))
+print(len(payload.quebraPacote()[0][0]))
+print(len(payload.quebraPacote()[-1][0]))
+print(payload.tamanhoPacote()[-1])
+print(len(payload.nPacote()))
+#print(Head.constroiHead(payload))
