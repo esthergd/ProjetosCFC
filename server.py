@@ -40,66 +40,62 @@ def main():
 
     pacotes = Pacotes("COM6")
 
-    while main:
+    try:
+        num_packages = 255
+        contagem = 1       
 
-        try:
-            totalDePacotes = 255
-            contagem = 1            
+        #Handshake
+        print("Receiving Handshake")
+        handshake, nRx = pacotes.com1.getData(14)
+        time.sleep(0.1)
+        pacotes.com1.sendData(handshake)
 
-            while contagem <= totalDePacotes:
+        while contagem < num_packages:
 
-                rxbuffer1, nrx = pacotes.com1.getData(10)
-                tamanhoPacote = rxbuffer1[0]
-                qualPacote = rxbuffer1[1]
-                totalDePacotes = rxbuffer1[2]
-                rxbuffer2, nrx = pacotes.com1.getData(tamanhoPacote)
-                rxbuffer3, nrx = pacotes.com1.getData(4)
-                print(f'\nHEAD: {rxbuffer1}')
-                print(f'\nID DO PACOTE: {qualPacote}')
-                print(f'\nPAYLOAD: {rxbuffer2}')
-                print(f'\nEOP: {rxbuffer3}')
-
-                contagem = qualPacote
-    
-            #Handshake
-            # print("Receiving Handshake")
-            # handshake, nRx = pacotes.com1.getData(14)
-            # pacotes.com1.sendData(handshake)
-
-            #Inicia Transmissão
-
-            #Head
             print("Receiving Head data")
             head, headsize = pacotes.com1.getData(10)
-            id_payload = head[0] .to_bytes(1, 'big')
-            size_payload = head[1]
-            num_packages = head[2:4]
+            id_payload = head[1] .to_bytes(1, 'big')
+            size_payload = head[0]
+            num_packages = head[2]
 
             print(f"Id do pacote: {id_payload}")
             print(f"Quantidade de pacotes: {num_packages}")
             payload, payloadSize = pacotes.com1.getData(size_payload)
-            
 
             EOP, nEOP = pacotes.com1.getData(4)
             if EOP == eop:
                 print("Deu tudo certo!")
                 head = constroiHead(b'\x01', b'\x00')
-                sendNext = Pacotes.constroiPacotes(head)
+                sendNext = pacotes.constroiPacotes(head)
                 pacotes.com1.sendData(sendNext)
                 resultados.append(payload)
-                
+                contagem = int.from_bytes(id_payload, "big")
+
             else:
                 print("Algo deu errado")
+                pacotes.com1.rx.clearBuffer()
                 head = constroiHead(b'\x00', b'\x01')
-                sendAgain = Pacotes.constroiPacotes(head)
+                sendAgain = pacotes.constroiPacotes(head)
                 pacotes.com1.sendData(sendAgain)
+        
+        
+        print("Pronto!")    
 
+        all_results = b''
 
-        except Exception as erro:
-            print("ops! :-\\")
-            print(traceback.format_exc())
-            print(erro)
-            pacotes.com1.disable()
+        for i in resultados:
+            all_results += i
+
+        f = open("teste.txt", 'wb')
+        f.write(all_results)
+        f.close
+            
+
+    except Exception as erro:
+        print("ops! :-\\")
+        print(traceback.format_exc())
+        print(erro)
+        pacotes.com1.disable()
 
 if __name__ == "__main__":
     main()
