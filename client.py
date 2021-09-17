@@ -1,4 +1,5 @@
 from io import TextIOWrapper
+from os import name
 from enlace import *
 import time
 import numpy as np
@@ -6,7 +7,7 @@ import time
 import random
 from math import *
 
-imagePath = 'ferro.jpg'
+imagePath = 'texto.txt'
 with open (imagePath, 'rb') as file:
     imageBytes = file.read()
 
@@ -29,15 +30,14 @@ class Head():
     def __init__(self, tamanho, nPacote, total):
         self.listaHead = []
 
-        self.tamanho = tamanho
+        self.tamanhoPkg = tamanho
         self.nPacote = nPacote 
-        self.total = total
-        self.idPacote = b'\x69'
+        self.totalPkgs = total
 
     def constroiHead(self):
-        self.listaHead.append(int(self.tamanho).to_bytes(1, 'big'))
+        self.listaHead.append(int(self.tamanhoPkg).to_bytes(1, 'big'))
         self.listaHead.append(int(self.nPacote).to_bytes(1, 'big'))
-        self.listaHead.append(int(self.total).to_bytes(1, 'big'))
+        self.listaHead.append(int(self.totalPkgs).to_bytes(1, 'big'))
         self.head = b''.join(self.listaHead)
 
         while len(self.head) != 10:
@@ -80,57 +80,80 @@ class Payload():
             self.pacote = ceil(self.pacote)
         return self.pacote
 
+def main():
+    pacotes = Pacotes(port="/dev/ttyACM0")
+    payload = Payload(imageBytes)
+
+    listaTamanho = payload.tamanhoPacote()
+    nPacote = payload.nPacote()
+    listaPacotes = payload.quebraPacote()
+
+    testarErro = True
+
+    try:
+
+        handshake = True
+        while handshake:
+                
+            txBuffer = b'\x01'*14
+            pacotes.com1.sendData(txBuffer)
+            rxBuffer, nRx = pacotes.com1.getData(14)
+
+            if rxBuffer == txBuffer:
+                print("DEU BÃO :)")
+                handshake = False
+
+            for i in nPacote:
+                enviando = True
+                while enviando:
+
+                    classeHead = Head(listaTamanho[i-1], nPacote[i-1], total=payload.totalPacotes())
+                    head = classeHead.constroiHead()
+                    pacote = pacotes.constroiPacotes(head, listaPacotes[i-1][0])
+
+                    if testarErro and i==2:
+                        classeHead = Head(listaTamanho[i-1], nPacote[i-2], total=payload.totalPacotes())
+                        head = classeHead.constroiHead()
+                        pacote = pacotes.constroiPacotes(head, listaPacotes[i-2][0])
+                        testarErro = False
+                        print("Envio Errado")
 
 
-payload = Payload(imageBytes)
-listaTamanho = payload.tamanhoPacote()
-nPacote = payload.nPacote()
-listaPacotes = payload.quebraPacote()
-pacotes = Pacotes(port="/dev/ttyACM0")
+                    #print(pacote)
+                    time.sleep(0.1)
+                    pacotes.com1.sendData(pacote)
+                    print("Pacotes enviados")
+
+                    print("Esperando Resposta")
+                    rxBuffer, nRx = pacotes.com1.getData(14)
+                    print(rxBuffer)
+                    print(i)
+                    continuar = rxBuffer[3]
+                    repetir = rxBuffer[4]
+
+                    if continuar == 1 and repetir == 0:
+                        enviando = False
+                        print("Recebi para continuar")
+                
+                
+            print("Enviei Tudo")
+    except Exception as exception:
+        print(exception)
+        pacotes.com1.disable()
+
+if __name__ == "__main__":
+    main()
+
+            
 
 
-for i in nPacote:
-    classeHead = Head(listaTamanho[i-1], nPacote[i-1], total=payload.totalPacotes())
-    head = classeHead.constroiHead()
-    pacote = pacotes.constroiPacotes(head, listaPacotes[i-1][0])
 
-    #print(pacote)
-    pacotes.com1.sendData(pacote)
-    time.sleep(1.5)
-    #print(pacotes.com1.rx.buffer)
     
-    # rxbuffer1, nrx = pacotes.com1.getData(10)
-    # tamanhoPacote = rxbuffer1[0]
-    # qualPacote = rxbuffer1[1]
-    # totalDePacotes = rxbuffer1[2]
-    # rxbuffer2, nrx = pacotes.com1.getData(tamanhoPacote)
-    # rxbuffer3, nrx = pacotes.com1.getData(4)
-    # print(f'\nHEAD: {rxbuffer1}')
-    # print(f'\nPAYLOAD: {rxbuffer2}')
-    # print(f'\nEOP: {rxbuffer3}')
-
-totalDePacotes = 255
-contagem = 1
-
-for contagem in range(totalDePacotes):
-
-    rxbuffer1, nrx = pacotes.com1.getData(10)
-    tamanhoPacote = rxbuffer1[0]
-    qualPacote = rxbuffer1[1]
-    totalDePacotes = rxbuffer1[2]
-    rxbuffer2, nrx = pacotes.com1.getData(tamanhoPacote)
-    rxbuffer3, nrx = pacotes.com1.getData(4)
-    print(f'\nHEAD: {rxbuffer1}')
-    print(f'\nPAYLOAD: {rxbuffer2}')
-    print(f'\nEOP: {rxbuffer3}')
-
-
 
 
 #print(payload.quebraPacote())
-# # print(len(payload.quebraPacote()[-1][0]))
+#print(len(payload.quebraPacote()[-1][0]))
 #print(payload.tamanhoPacote()[0])
-# print(payload.nPacote)
-
-# # print(payload.totalPacotes())
+#print(payload.nPacote)
+#print(payload.totalPacotes())
 #print(Head.constroiHead(payload))
