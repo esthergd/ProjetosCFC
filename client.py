@@ -17,23 +17,28 @@ class Pacotes():
 
         self.head = Head
         self.payload = Payload
-        self.eop = eop 
+        self.eop = b'\x00\x00\x00\x00'
 
     def constroiPacotes(self):
         return (self.head + self.payload + self. eop)
 
 class Head(): 
 
-    def __init__(self):
+    def __init__(self, tamanho, nPacote, total):
+        self.listaHead = []
 
-        self.tamanho = payload.tamanhoPacote()
-        self.nPacote = payload.nPacote()
-        self.total = payload.totalPacotes()
+        self.tamanho = tamanho
+        self.nPacote = nPacote 
+        self.total = total
         #self.tipo = tipo
 
-
     def constroiHead(self):
-        return (self.tamanho + self.nPacote + self.total)
+        self.listaHead.append(int(self.tamanho).to_bytes(1, 'big'))
+        self.listaHead.append(int(self.nPacote).to_bytes(1, 'big'))
+        self.listaHead.append(int(self.total).to_bytes(1, 'big'))
+        self.head = b''.join(self.listaHead)
+
+        return (self.head)
     
 class Payload():
 
@@ -73,13 +78,21 @@ class Payload():
 class EOP():
 
     def __init__(self):
-        self.fim = [b'\x00', b'\x00',b'\x00', b'\x00']
+        self.fim = 
 
 payload = Payload(imageBytes)
-# head = Head()
+listaTamanho = payload.tamanhoPacote()
+nPacote = payload.nPacote()
 
-print(len(payload.quebraPacote()[0][0]))
-print(len(payload.quebraPacote()[-1][0]))
-print(payload.tamanhoPacote()[-1])
-print(len(payload.nPacote()))
-#print(Head.constroiHead(payload))
+for i in nPacote:
+    head = Head(listaTamanho[i-1], nPacote[i-1], total=payload.totalPacotes())
+    byteHead = head.constroiHead()
+    
+    print(byteHead)
+
+# print(len(payload.quebraPacote()[0][0]))
+# print(len(payload.quebraPacote()[-1][0]))
+# print(payload.tamanhoPacote()[-1])
+
+# # print(payload.totalPacotes())
+# # #print(Head.constroiHead(payload))
