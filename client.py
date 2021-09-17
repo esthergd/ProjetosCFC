@@ -143,17 +143,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-            
-
-
-
-    
-
-
-#print(payload.quebraPacote())
-#print(len(payload.quebraPacote()[-1][0]))
-#print(payload.tamanhoPacote()[0])
-#print(payload.nPacote)
-#print(payload.totalPacotes())
-#print(Head.constroiHead(payload))
