@@ -13,14 +13,16 @@ with open (imagePath, 'rb') as file:
 
 class Pacotes():
 
-    def __init__(self, Head, Payload, eop) :
+    def __init__(self, port) :
+        self.com1 = enlace(port)
+        self.com1.enable()
+        print("Porta Aberta")
 
-        self.head = Head
-        self.payload = Payload
-        self.eop = b'\x00\x00\x00\x00'
+        self.eop = b'\x0b\x0a\x0b\x0a'
 
-    def constroiPacotes(self):
-        return (self.head + self.payload + self. eop)
+    def constroiPacotes(self, head, pacotes=b''):
+
+        return (head + pacotes + self.eop)
 
 class Head(): 
 
@@ -30,13 +32,16 @@ class Head():
         self.tamanho = tamanho
         self.nPacote = nPacote 
         self.total = total
-        #self.tipo = tipo
+        self.idPacote = b'\x69'
 
     def constroiHead(self):
         self.listaHead.append(int(self.tamanho).to_bytes(1, 'big'))
         self.listaHead.append(int(self.nPacote).to_bytes(1, 'big'))
         self.listaHead.append(int(self.total).to_bytes(1, 'big'))
         self.head = b''.join(self.listaHead)
+
+        while len(self.head) != 10:
+            self.head += b'\x00'
 
         return (self.head)
     
@@ -75,24 +80,57 @@ class Payload():
             self.pacote = ceil(self.pacote)
         return self.pacote
 
-class EOP():
 
-    def __init__(self):
-        self.fim = 
 
 payload = Payload(imageBytes)
 listaTamanho = payload.tamanhoPacote()
 nPacote = payload.nPacote()
+listaPacotes = payload.quebraPacote()
+pacotes = Pacotes(port="/dev/ttyACM0")
+
 
 for i in nPacote:
-    head = Head(listaTamanho[i-1], nPacote[i-1], total=payload.totalPacotes())
-    byteHead = head.constroiHead()
-    
-    print(byteHead)
+    classeHead = Head(listaTamanho[i-1], nPacote[i-1], total=payload.totalPacotes())
+    head = classeHead.constroiHead()
+    pacote = pacotes.constroiPacotes(head, listaPacotes[i-1][0])
 
-# print(len(payload.quebraPacote()[0][0]))
-# print(len(payload.quebraPacote()[-1][0]))
-# print(payload.tamanhoPacote()[-1])
+    #print(pacote)
+    pacotes.com1.sendData(pacote)
+    time.sleep(1.5)
+    #print(pacotes.com1.rx.buffer)
+    
+    # rxbuffer1, nrx = pacotes.com1.getData(10)
+    # tamanhoPacote = rxbuffer1[0]
+    # qualPacote = rxbuffer1[1]
+    # totalDePacotes = rxbuffer1[2]
+    # rxbuffer2, nrx = pacotes.com1.getData(tamanhoPacote)
+    # rxbuffer3, nrx = pacotes.com1.getData(4)
+    # print(f'\nHEAD: {rxbuffer1}')
+    # print(f'\nPAYLOAD: {rxbuffer2}')
+    # print(f'\nEOP: {rxbuffer3}')
+
+totalDePacotes = 255
+contagem = 1
+
+for contagem in range(totalDePacotes):
+
+    rxbuffer1, nrx = pacotes.com1.getData(10)
+    tamanhoPacote = rxbuffer1[0]
+    qualPacote = rxbuffer1[1]
+    totalDePacotes = rxbuffer1[2]
+    rxbuffer2, nrx = pacotes.com1.getData(tamanhoPacote)
+    rxbuffer3, nrx = pacotes.com1.getData(4)
+    print(f'\nHEAD: {rxbuffer1}')
+    print(f'\nPAYLOAD: {rxbuffer2}')
+    print(f'\nEOP: {rxbuffer3}')
+
+
+
+
+#print(payload.quebraPacote())
+# # print(len(payload.quebraPacote()[-1][0]))
+#print(payload.tamanhoPacote()[0])
+# print(payload.nPacote)
 
 # # print(payload.totalPacotes())
-# # #print(Head.constroiHead(payload))
+#print(Head.constroiHead(payload))
