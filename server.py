@@ -15,9 +15,6 @@ class Pacotes():
 
         return (head + pacotes + self.eop)
 
-def resend():
-    pass
-
 def constroiHead(continuar, repetir):
     listaHead = []
     listaHead.append(int(0).to_bytes(1, 'big'))
@@ -38,7 +35,7 @@ def main():
     eop = b'\x0b\x0a\x0b\x0a'
     id_previous = b''
 
-    pacotes = Pacotes("COM6")
+    pacotes = Pacotes("/dev/ttyACM1")
 
     try:
         num_packages = 255
@@ -89,6 +86,8 @@ def main():
         f = open("teste.txt", 'wb')
         f.write(all_results)
         f.close
+
+        pacotes.com1.disable()
             
 
     except Exception as erro:

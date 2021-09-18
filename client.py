@@ -50,6 +50,12 @@ class Payload():
     def __init__(self, conteudo):
         self.conteudo = conteudo
 
+    def totalPacotes(self):
+        self.pacote = len(self.conteudo)/114
+        if type (self.pacote) == float:
+            self.pacote = ceil(self.pacote)
+        return self.pacote
+
     def quebraPacote(self):
         self.lista_pacotes = []
 
@@ -73,13 +79,6 @@ class Payload():
             self.nPacote.append(length + 1)
         return self.nPacote
 
-
-    def totalPacotes(self):
-        self.pacote = len(self.conteudo)/114
-        if type (self.pacote) == float:
-            self.pacote = ceil(self.pacote)
-        return self.pacote
-
 def main():
     pacotes = Pacotes(port="/dev/ttyACM0")
     payload = Payload(imageBytes)
@@ -100,7 +99,7 @@ def main():
             rxBuffer, nRx = pacotes.com1.getData(14)
 
             if rxBuffer == txBuffer:
-                print("DEU BÃO :)")
+                print("HandShake concluído")
                 handshake = False
 
             for i in nPacote:
@@ -112,22 +111,19 @@ def main():
                     pacote = pacotes.constroiPacotes(head, listaPacotes[i-1][0])
 
                     if testarErro and i==2:
-                        classeHead = Head(listaTamanho[i-1], nPacote[i-2], total=payload.totalPacotes())
+                        classeHead = Head(83, nPacote[i-1], total=payload.totalPacotes())
                         head = classeHead.constroiHead()
                         pacote = pacotes.constroiPacotes(head, listaPacotes[i-2][0])
                         testarErro = False
                         print("Envio Errado")
 
 
-                    #print(pacote)
                     time.sleep(0.1)
                     pacotes.com1.sendData(pacote)
-                    print("Pacotes enviados")
+                    print("Pacote enviado {0}".format(i))
 
                     print("Esperando Resposta")
                     rxBuffer, nRx = pacotes.com1.getData(14)
-                    print(rxBuffer)
-                    print(i)
                     continuar = rxBuffer[3]
                     repetir = rxBuffer[4]
 
@@ -137,6 +133,7 @@ def main():
                 
                 
             print("Enviei Tudo")
+            pacotes.com1.disable()
     except Exception as exception:
         print(exception)
         pacotes.com1.disable()
