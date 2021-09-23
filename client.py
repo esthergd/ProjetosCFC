@@ -19,7 +19,7 @@ class Pacotes():
         self.com1.enable()
         print("Porta Aberta")
 
-        self.eop = b'\x0b\x0a\x0b\x0a'
+        self.eop = b'\xFF\xAA\xFF\xAA'
 
     def constroiPacotes(self, head, pacotes=b''):
 
@@ -27,17 +27,26 @@ class Pacotes():
 
 class Head(): 
 
-    def __init__(self, tamanho, nPacote, total):
+    def __init__(self):
         self.listaHead = []
+        self.idServidor = b'\x0f'
+        self.idSensor = b'\x0b'
 
-        self.tamanhoPkg = tamanho
-        self.nPacote = nPacote 
-        self.totalPkgs = total
+    def constroiHead(self, tipo, nTotal=b'\x00', nPacote=b'\x00', idArquivo=b'\x00', tamanhoPkg=b'\x00', reEnvio=b'\x00', pkgRecebido=b'\x00'):
+        self.listaHead.append(int(tipo).to_bytes(1, 'big')) #h0
+        self.listaHead.append(int(self.idSensor).to_bytes(1, 'big')) #h1
+        self.listaHead.append(int(self.idServidor).to_bytes(1, 'big')) #h2
+        self.listaHead.append(int(nTotal).to_bytes(1, 'big')) #h3
+        self.listaHead.append(int(nPacote).to_bytes(1, 'big')) #h4
 
-    def constroiHead(self):
-        self.listaHead.append(int(self.tamanhoPkg).to_bytes(1, 'big'))
-        self.listaHead.append(int(self.nPacote).to_bytes(1, 'big'))
-        self.listaHead.append(int(self.totalPkgs).to_bytes(1, 'big'))
+        if tipo == b'\x01' or tipo == b'\x02':
+            self.listaHead.append(int(idArquivo).to_bytes(1, 'big')) #h5
+        else:
+            self.listaHead.append(int(tamanhoPkg).to_bytes(1, 'big')) #h5
+
+        self.listaHead.append(int(reEnvio).to_bytes(1, 'big')) #h6
+        self.listaHead.append(int(pkgRecebido).to_bytes(1, 'big')) #h7
+
         self.head = b''.join(self.listaHead)
 
         while len(self.head) != 10:
@@ -86,6 +95,7 @@ def main():
     listaTamanho = payload.tamanhoPacote()
     nPacote = payload.nPacote()
     listaPacotes = payload.quebraPacote()
+    totalPacotes = payload.totalPacotes()
 
     testarErro = True
 
@@ -93,6 +103,11 @@ def main():
 
         handshake = True
         while handshake:
+
+            # classeHead = Head(listaTamanho[i-1], nPacote[i-1], total=totalPacotes)
+            # head = classeHead.constroiHead()
+            # pacote = pacotes.constroiPacotes(head, listaPacotes[i-1][0])
+
                 
             txBuffer = b'\x01'*14
             pacotes.com1.sendData(txBuffer)
@@ -102,34 +117,34 @@ def main():
                 print("HandShake concluído")
                 handshake = False
 
-            for i in nPacote:
-                enviando = True
-                while enviando:
+        for i in nPacote:
+            enviando = True
+            while enviando:
 
-                    classeHead = Head(listaTamanho[i-1], nPacote[i-1], total=payload.totalPacotes())
+                classeHead = Head(listaTamanho[i-1], nPacote[i-1], total=totalPacotes)
+                head = classeHead.constroiHead()
+                pacote = pacotes.constroiPacotes(head, listaPacotes[i-1][0])
+
+                if testarErro and i==2:
+                    classeHead = Head(83, nPacote[i-1], total=totalPacotes)
                     head = classeHead.constroiHead()
-                    pacote = pacotes.constroiPacotes(head, listaPacotes[i-1][0])
-
-                    if testarErro and i==2:
-                        classeHead = Head(83, nPacote[i-1], total=payload.totalPacotes())
-                        head = classeHead.constroiHead()
-                        pacote = pacotes.constroiPacotes(head, listaPacotes[i-2][0])
-                        testarErro = False
-                        print("Envio Errado")
+                    pacote = pacotes.constroiPacotes(head, listaPacotes[i-2][0])
+                    testarErro = False
+                    print("Envio Errado")
 
 
-                    time.sleep(0.1)
-                    pacotes.com1.sendData(pacote)
-                    print("Pacote enviado {0}".format(i))
+                time.sleep(0.1)
+                pacotes.com1.sendData(pacote)
+                print("Pacote enviado {0}".format(i))
 
-                    print("Esperando Resposta")
-                    rxBuffer, nRx = pacotes.com1.getData(14)
-                    continuar = rxBuffer[3]
-                    repetir = rxBuffer[4]
+                print("Esperando Resposta")
+                rxBuffer, nRx = pacotes.com1.getData(14)
+                continuar = rxBuffer[3]
+                repetir = rxBuffer[4]
 
-                    if continuar == 1 and repetir == 0:
-                        enviando = False
-                        print("Recebi para continuar")
+                if continuar == 1 and repetir == 0:
+                    enviando = False
+                    print("Recebi para continuar")
                 
                 
             print("Enviei Tudo")

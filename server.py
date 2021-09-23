@@ -51,7 +51,7 @@ def main():
 
             print("Receiving Head data")
             head, headsize = pacotes.com1.getData(10)
-            id_payload = head[1] .to_bytes(1, 'big')
+            id_payload = head[1].to_bytes(1, 'big')
             size_payload = head[0]
             num_packages = head[2]
 
