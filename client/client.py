@@ -19,10 +19,10 @@ def main():
     payload = Payload(imageByte)
     eop = b'\x0b\x0a\x0b\x0a'
 
-    pkgSize = Payload.quebraPacote() #PKG_LIST
-    totalPkg = Payload.totalPacotes() #TOTAL_PACKAGES
-    sizePkg = Payload.tamanhoPacote() #SIZE_LIST
-    pkgNmbr = Payload.nPacote() #PKG_NBR
+    pkgSize = payload.quebraPacote() #PKG_LIST
+    totalPkg = payload.totalPacotes() #TOTAL_PACKAGES
+    sizePkg = payload.tamanhoPacote() #SIZE_LIST
+    pkgNmbr = payload.nPacote() #PKG_NBR
 
     testError = True
 
@@ -89,7 +89,7 @@ def main():
                 while count <= pkgNmbr:
                     sending = True
                     while sending:
-                        head = Head(type, totalPkg, pkgNmbr[count-1], pkgSize[count-1], 0, 0, 0, 0).creatHead()
+                        head = Head(type, totalPkg, pkgNmbr[count-1], sizePkg[count-1], 0, 0, 0, 0).creatHead()
 
                         print(f'O Head do pacoote a ser enviado é {head}')
                         print('#########################################')
@@ -100,7 +100,8 @@ def main():
 
                         time.sleep(0.1)
 
-                        time1 = time.time()
+                        timer1 = time.time()
+                        timer2 = time.time()
 
                         print('O pacote foi enviado')
                         print('####################')
@@ -112,30 +113,36 @@ def main():
                         if type == 4:
                             count +=1
                         else:
-                            if time1 > 20:
+                            if timer1 > 5:
+                                head = Head(type, totalPkg, pkgNmbr[count-1], pkgSize[count-1], 0, 0, 0, 0).creatHead()
+                                pkg = Datagram.constroiPacotes(head, pkgSize[count-1][0])
+                                data.com1.sendData(pkg)
+                                timer1 = time.time()
+                                pass
+                            elif timer2 > 20:
                                 type = 5
                                 head = Head(type, 0, 0, 0, 0, 0, 0, 0).creatHead()
                                 data.com1.sendData(head)
                                 time.sleep(0.1)
-                                print('Erro de TimeOut, encerrando a comunicação')
+                                print('Erro de TimeOut, encerrando a comunicação :(')
                                 data.com1.rx.clearBuffer()
                                 data.com1.disable()
                                 pass
                             elif type == 5: 
-                                print('Erro de TimeOut, encerrando a comunicação')
+                                print('Erro de TimeOut, encerrando a comunicação :(')
                                 time.sleep(0.1)
                                 data.com1.disable()
                                 pass
                             else:
-                                #Recebe msg
-                                # data.com1.getdata()
                                 if type == 6:
-                                    #corrige o count
-                                    #envia msg do type 3
-                                    #reset timer 1 e 2
+                                    count = head[2]
+                                    head = Head(type, totalPkg, pkgNmbr[count-1], pkgSize[count-1], 0, 0, 0, 0).creatHead()
+                                    pkg = Datagram.constroiPacotes(head, pkgSize[count-1][0])
+                                    data.com1.sendData(pkg)
+                                    timer1 = time.time()
+                                    timer2 = time.time()
                                     pass
                                 else:
-                                    #volta tudo
                                     pass
 
                         rxBuffer, nRx = pkg.com1.getData(14)
