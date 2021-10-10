@@ -101,7 +101,6 @@ def main():
                         time.sleep(0.1)
 
                         time1 = time.time()
-                        time2 = time.time()
 
                         print('O pacote foi enviado')
                         print('####################')
@@ -113,7 +112,7 @@ def main():
                         if type == 4:
                             count +=1
                         else:
-                            if time2 > 20:
+                            if time1 > 20:
                                 type = 5
                                 head = Head(type, 0, 0, 0, 0, 0, 0, 0).creatHead()
                                 data.com1.sendData(head)
