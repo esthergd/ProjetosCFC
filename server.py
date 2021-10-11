@@ -1,100 +1,107 @@
-from enlace import enlace
+from _typeshed import IdentityFunction
+from enlace import *
 import time
-import traceback
+import numpy as np
+from functions.functions import *
 
+serialName = "COM5"
 
-class Pacotes():
+imgPath = 'ferro.jpg'
+with open(imgPath, 'rb') as file:
+    imageByte = file.read()
 
-    def __init__(self, port):
-        self.com1 = enlace(port)
-        self.com1.enable()
-        print("Porta Aberta")
-        self.eop = b'\x0b\x0a\x0b\x0a'
+def createHead(keep, repeat):
+    listHead = []
+    listHead.append(int(0).to_bytes(1, 'big'))
+    listHead.append(int(0).to_bytes(1, 'big'))
+    listHead.append(int(0).to_bytes(1, 'big'))
+    listHead.append(int(0).to_bytes(1, 'big'))
+    listHead.append(int(0).to_bytes(1, 'big'))
+    listHead.append(int(0).to_bytes(1, 'big'))
+    listHead.append(int(0).to_bytes(1, 'big'))
+    listHead.append(int(0).to_bytes(1, 'big'))
+    listHead.append(int(0).to_bytes(1, 'big'))
+    listHead.append(int(0).to_bytes(1, 'big'))
+    listHead.append(keep)
+    listHead.append(repeat)
+    head = b''.join(listHead)
 
-    def constroiPacotes(self, head, pacotes=b''):
-
-        return (head + pacotes + self.eop)
-
-def constroiHead(continuar, repetir):
-    listaHead = []
-    listaHead.append(int(0).to_bytes(1, 'big'))
-    listaHead.append(int(0).to_bytes(1, 'big'))
-    listaHead.append(int(0).to_bytes(1, 'big'))
-    listaHead.append(continuar)
-    listaHead.append(repetir)
-    head = b''.join(listaHead)
-
-    while len(head) != 10:
-        head += b'\x00'
-
-    return (head)
+    return head
 
 def main():
     main = True
-    resultados = []
+    results = []
+    id = b''
     eop = b'\x0b\x0a\x0b\x0a'
-    id_previous = b''
+    data = Datagram(port = serialName)
+    payload = Payload(imageByte)
 
-    pacotes = Pacotes("/dev/ttyACM1")
+    pkgSize = payload.quebraPacote() #PKG_LIST
+    totalPkg = payload.totalPacotes() #TOTAL_PACKAGES
+    sizePkg = payload.tamanhoPacote() #SIZE_LIST
+    pkgNmbr = payload.nPacote() #PKG_NBR
 
     try:
-        num_packages = 255
-        contagem = 1       
+        packages = 255
+        count = 1
+        idle = True
 
-        #Handshake
-        print("Receiving Handshake")
-        handshake, nRx = pacotes.com1.getData(14)
-        time.sleep(0.1)
-        pacotes.com1.sendData(handshake)
+        while idle:
+            print('Servidor aberto e ocioso para a comunicação')
+            print('###########################################')
 
-        while contagem < num_packages:
+            rxBuffer, nRx = data.com1.getData(14)
 
-            print("Receiving Head data")
-            head, headsize = pacotes.com1.getData(10)
-            id_payload = head[1].to_bytes(1, 'big')
-            size_payload = head[0]
-            num_packages = head[2]
-
-            print(f"Id do pacote: {id_payload}")
-            print(f"Quantidade de pacotes: {num_packages}")
-            payload, payloadSize = pacotes.com1.getData(size_payload)
-
-            EOP, nEOP = pacotes.com1.getData(4)
-            if EOP == eop:
-                print("Deu tudo certo!")
-                head = constroiHead(b'\x01', b'\x00')
-                sendNext = pacotes.constroiPacotes(head)
-                pacotes.com1.sendData(sendNext)
-                resultados.append(payload)
-                contagem = int.from_bytes(id_payload, "big")
-
+            if rxBuffer[2] == b'\xcc':
+                idle = False
+                break
             else:
-                print("Algo deu errado")
-                pacotes.com1.rx.clearBuffer()
-                head = constroiHead(b'\x00', b'\x01')
-                sendAgain = pacotes.constroiPacotes(head)
-                pacotes.com1.sendData(sendAgain)
+                print('Id do servidor está errado')
+                time.sleep(1)
+                continue
+
+        time.sleep(1)
+
+        type = 2
+
+        if type == 2:
+            head = Head(type, totalPkg, 0, 0, 0, 0, 0, 0).creatHead()
+            data.com1.sendData(head)
         
-        
-        print("Pronto!")    
+        while count <= packages:
+            timer1 = time.time()
+            timer2 = time.time()
 
-        all_results = b''
+            print('O Head foi recebido')
+            print('###################')
+            head, nRx = data.com1.getData(10)
 
-        for i in resultados:
-            all_results += i
+            typeMsg = head[0]
+            pkgsTotal = head[3]
+            nmbrPkg = head[4].to_bytes(1, 'big')
+            pkgSize = head[5]
+            
+            print(f'Qual o tipo do Pacote: {typeMsg}')
+            print('#################################')
+            print(f'Qual é o pacote recebido: {nmbrPkg}')
+            print('####################################')
+            print(f'Quantidade de pacotes para serem lidos: {pkgsTotal}')
+            print('####################################################')
+            payload, nRx = data.com1.getData(pkgSize)
+            eop, nRx = data.com1.getData(4)
 
-        f = open("teste.txt", 'wb')
-        f.write(all_results)
-        f.close
+            i = 1
 
-        pacotes.com1.disable()
+            while i <= packages:
+                if nmbrPkg == i and eop == b'\x0b\x0a\x0b\x0a':
+                    i += 1
+                    
             
 
-    except Exception as erro:
-        print("ops! :-\\")
-        print(traceback.format_exc())
-        print(erro)
-        pacotes.com1.disable()
 
-if __name__ == "__main__":
-    main()
+
+
+    except Exception as exception:
+        print(exception)
+        data.com1.disable()
+

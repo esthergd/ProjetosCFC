@@ -1,27 +1,34 @@
 from datetime import datetime
 
-class Log:
-    def __init__(self, side, typeCase):
-        self.side = side
-        self.fileLog = open('files/logs/{}{}.txt'.format(side,typeCase), 'a')
+class Log():
+    def __init__(self, info, alteration):
+        self.typeMsg = info[0]
+        self.size = len(info)
+        self.alteration = alteration
+        self.time = datetime.now().strftime("%d/%m/%Y %H:%M:%S.%f")
+        self.all = []
 
-    def logCrate(self, typeSend, type, size, pkgSend, totalPkgs, crc = b'' ):
-        '''
-        date -> MOMENTO DO ENVIO
-        typeSend -> ENVIOU/RECEBEU
-        type -> 1,2,3 etc.
-        size -> TAMANHO INTEIRO
-        pkgSend -> TYPE 3 (INTEIRO)
-        totalPkgs -> TYPE 3 (INTEIRO)
-        '''
-        date = datetime.now().strftime('%d/%m/%Y %H:%M:%S.%f')
-        crc=hex(int.from_bytes(crc, byteorder='big'))
-        message = '{} / {} / {} / {}'.format(date,typeSend,type,size)
-        if type == 3:
-            message = message + ' / {} / {} / {}'.format(pkgSend,totalPkgs, crc) 
+        if self.typeMsg == 3:
+            self.pkgNmbr = info[4]
+            self.totalPkgs = info[3]
+            self.crc = str(info[8:10]).upper()
+            self.crc = self.crc[4:6] + self.crc[8:10]
         else:
-            message
-        self.fileLog.write(message+'\n')
-    
-    def closeLog(self):
-        self.fileLog.close()
+            self.pkgNmbr = ''
+            self.totalPkgs = ''
+            self.crc = ''
+        
+    def crateLog(self):
+        if self.typeMsg == 3:
+            info = f'{self.time} / {self.alteration} / {self.typeMsg} / {self.size} / {self.pkgpkgNmbr_id} / {self.totalPkgs} / {self.crc}'
+        else:
+            info = f'{self.time} / {self.alteration} / {self.typeMsg} / {self.size}'
+        return info
+
+    def writeLog(self, create, fileName):
+        self.all.append(create)
+        file = open(fileName, 'a')
+        for create in self.all:
+            file.write(create)
+            file.write('/n')
+            file.close()
