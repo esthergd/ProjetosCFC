@@ -3,14 +3,14 @@ import time
 from functions.functions import *
 from log.log import*
 
-serialName = "COM5"
+serialName = "COM4"
 
 imgPath = 'ferro.jpg'
 with open(imgPath, 'rb') as file:
     imageByte = file.read()
 
 def main():
-    eop = b'\x0b\x0a\x0b\x0a'
+    eop = b'\xFF\xAA\xFF\xAA'
     data = Datagram(serialName)
     payload = Payload(imageByte)
 

@@ -9,7 +9,7 @@ imgPath = 'ferro.jpg'
 with open(imgPath, 'rb') as file:
     imageByte = file.read()
 
-serialName = 'COM5'
+serialName = 'COM4'
 
 def main():
     data = Datagram(port = serialName)
