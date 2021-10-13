@@ -1,10 +1,4 @@
-from io import TextIOWrapper
-from os import name
 from enlace import *
-import time
-import numpy as np
-import time
-import random
 from math import *
 
 class Datagram():

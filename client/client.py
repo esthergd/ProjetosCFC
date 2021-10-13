@@ -1,13 +1,9 @@
-import os
-from io import TextIOWrapper
 from enlace import *
-import numpy as np
 import time
-import random
 from log.log import *
 from math import *
 from functions.functions import *
-import log.log import *
+from log.log import *
 
 imgPath = 'ferro.jpg'
 with open(imgPath, 'rb') as file:
@@ -18,7 +14,7 @@ serialName = 'COM5'
 def main():
     data = Datagram(port = serialName)
     payload = Payload(imageByte)
-    eop = b'\x0b\x0a\x0b\x0a'
+    eop = b'\xFF\xAA\xFF\xAA'
 
     pkgSize = payload.quebraPacote()
     totalPkg = payload.totalPacotes()
@@ -27,25 +23,18 @@ def main():
 
     try:
 
-        print('A comunicação foi aberta com sucesso')
-        print('####################################')
-        print(f'Quanto pacotes serão enviados: {pkgNmbr}')
-
+        print('Comunication was open with success')
+        print(f'Packages to be sent: {pkgNmbr}')
         HANDSHAKE = False
-        SEND = False
         type = 1
         count = 0
-
         if type == 1:
 
             HANDSHAKE = True
-
             head = Head(type, totalPkg, 0, 0, 0, 0, 0, 0).creatHead()
 
             while HANDSHAKE:
-
-                print('Iniciando o HandShake com o Server')
-                print('Você está pronto para receber os dados Server??')
+                print('Starting HANDSHAKE with Server')
                 
                 timeout = time.time() + 5
                 txBuffer1 = head + eop
@@ -64,25 +53,20 @@ def main():
                         logType2.writeLog(type2Msg, 'Client1.txt')
 
                         if rxBuffer[1] == 22:
-                            print('TUDO CERTO COM O ID')
-                            print('###################')
-                            print('Servidor está pronto para comunicação')
-                            print('#####################################')
-                            print('HandShake realizado com maestria')
-                            print('################################')
+                            print('ID OK!')
+                            print('Server is ready to comunicate')
+                            print('HANDSHAKE done!')
                             HANDSHAKE = False
                             type = 3
                             break
 
                 if HANDSHAKE:
-                    check = input('Servidor inativo. Tentar novamente? [Y/N]') 
-                    print("#########################################")
+                    check = input('Server inactive. Try again? [Y/N]') 
                     if check.upper() == "Y": 
-                        print("Rodando servidor novamente")
+                        print("Starting server again")
                         continue
                     elif check.upper() == 'N':
-                        print('Encerrando Comunicação')
-                        print("----------------------------------------")
+                        print('Ending communication')
                         data.com1.disable()
                 else:
                     pass
@@ -92,11 +76,9 @@ def main():
                 sending = True
                 head = Head(type, totalPkg, pkgNmbr[count-1], sizePkg[count-1], 0, 0, 0, 0).creatHead()
 
-                print(f'O Head do pacote a ser enviado é {head}')
-                print('#########################################')+
                 pkg = Datagram.constroiPacotes(head, pkgSize[count-1][0])
 
-                print(f'Pacoe a ser enviado {count}: {pkg}')
+                print(f'Package to be sent: {count}: {pkg}')
                 time.sleep(1)
                 data.com1.sendData(pkg)
 
@@ -107,11 +89,10 @@ def main():
                 timer1 = time.time()
                 timer2 = time.time()
 
-                print('O pacote foi enviado')
-                print('####################')
-                print('No Aguardo da resposta do Server')
+                print('Package was sent')
+                print('Waiting server!')
                 
-                while not sending:
+                while sending:
                     rxBuffer, nRx = data.com1.getData(10)
 
                     rsp3 = rxBuffer
@@ -144,7 +125,7 @@ def main():
                         type6Msg = logType6.crateLog()
                         logType6.writeLog(type6Msg, 'Client1.txt')
                         
-                        timer1 = time.time()''
+                        timer1 = time.time()
                         timer2 = time.time()
 
                     elif time.time() - timer1 > 5:
@@ -170,7 +151,7 @@ def main():
 
                         data.com1.disable()
 
-            print('Todos os pacotes foram enviados com sucesso')
+            print('All packages was sent. Ending communication')
             print('###########################################')
 
 
