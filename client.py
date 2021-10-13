@@ -1,9 +1,9 @@
 from enlace import *
 import time
-from log.log import *
+from log import *
 from math import *
-from functions.functions import *
-from log.log import *
+from functions import *
+from log import *
 
 imgPath = 'ferro.jpg'
 with open(imgPath, 'rb') as file:

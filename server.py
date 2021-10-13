@@ -1,7 +1,7 @@
 from enlace import *
 import time
-from functions.functions import *
-from log.log import*
+from functions import *
+from log import*
 
 serialName = "COM4"
 
