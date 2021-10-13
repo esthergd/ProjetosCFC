@@ -80,11 +80,67 @@ def main():
                 print('Amount of packeges: ''{}'.format(totalPkgs))
                 print('CRC: ''{}'.format(crc))
 
-                pkg, 
+                pkg, nRx = data.com1.getData(pkgSize)
+
+                logType3 = Log(pkg, 'recieve')
+                msgType3 = logType3.crateLog()
+                logType3.writeLog(msgType3, 'Server1.txt')
+
+                eop, nRx = data.com1.getData(4)
+
+                if eop == b'\xFF\xAA\xFF\xAA' and pkgNmbr == count:
+
+                    lastPkg = pkgNmbr
+
+                    head4 = Head(4, 0, pkgNmbr[count-1], 0, 0, lastPkg, 0, 0).creatHead()
+                    pkg4 = head4 + eop
+                    data.com1.sendData(pkg4)
+
+                    logMsg4 = Log(pkg4, 'send')
+                    msgType4 = logMsg4.crateLog()
+                    logMsg4.writeLog(msgType4, 'Server1.txt')
+
+                    count += 1
+                else:
+
+                    previousPkg = count - 1
+                    
+                    head6 = Head(6, 0, 0, 0, previousPkg, 0, 0, 0,).creatHead()
+                    pkg6 = head6 + eop
+                    data.com1.sendData(pkg6)
+
+                    logMsg6 = Log(pkg6, 'send')
+                    msgType6 = logMsg6.crateLog()
+                    logMsg6.writeLog(msgType6, 'Server1.txt')
             
+            else:
+                time.sleep(1)
+                if time.time() - timer2 > 20:
+                    idle = True
 
+                    head5 = Head(5, 0, 0, 0, 0, 0, 0, 0)
+                    pkg5 = head5 + eop
+                    data.com1.sendData(pkg5)
 
+                    logMsg5 = Log(pkg5, 'send')
+                    msgType5 = logMsg5.crateLog()
+                    logMsg5.writeLog(msgType5, 'Server1.txt')
 
+                    data.com1.disable()
+                else:
+                    if time.time() - timer1 > 2:
+
+                        head4 = Head(4, 0, pkgNmbr[count-1], 0, 0, lastPkg, 0, 0).creatHead()
+                        pkg4 = head4 + eop
+                        data.com1.sendData(pkg4)
+
+                        logMsg4 = Log(pkg4, 'send')
+                        msgType4 = logMsg4.crateLog()
+                        logMsg4.writeLog(msgType4, 'Server1.txt')
+
+                        timer1 = time.time()
+
+        data.com1.disable()
 
     except Exception as exception:
         print(exception)

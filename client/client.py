@@ -109,50 +109,51 @@ def main():
                         print(f"Type of message: {typeRsp}")
                         print(f"Pkg {count} recieved with success!")
 
-                    elif typeRsp == 6:
-                        count = rxBuffer[6]
-                        print(f"Type of message: {typeRsp}")
-                        print(f"Pkg {count} not found!")
+                    else:
+                        if time.time() - timer1 > 5:
+                            print(f'5 seconds have passed, sending pkg {count} again')
 
-                        headType6 = Head(typeRsp, totalPkg, pkgNmbr[count-1], sizePkg[count-1], 0, rxBuffer[6], 0, 0).creatHead()
-                        pkg6 = data.constroiPacotes(headType6, sizePkg[count-1][0])
+                            data.com1.sendData(pkg)
+                            log3Rsp = Log(head, 'receive')
+                            rspMsg3 = log3Rsp.crateLog()
+                            log3Rsp.writeLog(rspMsg3, 'Client1.txt')
+                        else:
+                            if time.time() - timer2 > 20:
+                                print(f'20 Seconds have passed, ending communication with server')
 
-                        print(f'Sending pkg {count} again!')
-                        time.sleep(1)
-                        data.com1.sendData(pkg6)
+                                type = 5
+                                headType5 = Head(type, totalPkg, pkgNmbr[count-1], sizePkg[count-1], 0, rxBuffer[6], 0, 0).creatHead()
+                                pkg5 = data.constroiPacotes(headType5, sizePkg[count-1][0])
+                                time.sleep(1)
+                                data.com1.sendData(pkg5)
 
-                        logType6 = Log(headType6, 'send')
-                        type6Msg = logType6.crateLog()
-                        logType6.writeLog(type6Msg, 'Client1.txt')
+                                logType5 = Log(head, 'send')
+                                type5Msg = logType5.crateLog()
+                                logType5.writeLog(type5Msg, 'Client1.txt')
+
+                                data.com1.disable()
+                            else:
+                                typeRsp == 6
+                                count = rxBuffer[6]
+                                print(f"Type of message: {typeRsp}")
+                                print(f"Pkg {count} not found!")
+
+                                headType6 = Head(typeRsp, totalPkg, pkgNmbr[count-1], sizePkg[count-1], 0, rxBuffer[6], 0, 0).creatHead()
+                                pkg6 = data.constroiPacotes(headType6, sizePkg[count-1][0])
+
+                                print(f'Sending pkg {count} again!')
+                                time.sleep(1)
+                                data.com1.sendData(pkg6)
+
+                                logType6 = Log(headType6, 'send')
+                                type6Msg = logType6.crateLog()
+                                logType6.writeLog(type6Msg, 'Client1.txt')
+                                
+                                timer1 = time.time()
+                                timer2 = time.time()
+                            pass
                         
-                        timer1 = time.time()
-                        timer2 = time.time()
-
-                    elif time.time() - timer1 > 5:
-                        print(f'5 seconds have passed, sending pkg {count} again')
-
-                        data.com1.sendData(pkg)
-                        log3Rsp = Log(head, 'receive')
-                        rspMsg3 = log3Rsp.crateLog()
-                        log3Rsp.writeLog(rspMsg3, 'Client1.txt')
-                    
-                    if time.time() - timer2 > 20:
-                        print(f'20 Seconds have passed, ending communication with server')
-
-                        type = 5
-                        headType5 = Head(type, totalPkg, pkgNmbr[count-1], sizePkg[count-1], 0, rxBuffer[6], 0, 0).creatHead()
-                        pkg5 = data.constroiPacotes(headType5, sizePkg[count-1][0])
-                        time.sleep(1)
-                        data.com1.sendData(pkg5)
-
-                        logType5 = Log(head, 'send')
-                        type5Msg = logType5.crateLog()
-                        logType5.writeLog(type5Msg, 'Client1.txt')
-
-                        data.com1.disable()
-
             print('All packages was sent. Ending communication')
-            print('###########################################')
 
 
     except Exception as exception:
