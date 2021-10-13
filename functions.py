@@ -6,7 +6,7 @@ class Datagram():
         self.com1 = enlace(port)
         self.com1.enable()
         print("Porta Aberta")
-        self.eop = b'\x0b\x0a\x0b\x0a'
+        self.eop = b'\xFF\xAA\xFF\xAA'
 
     def constroiPacotes(self, head, pacotes=b''):
         return (head + pacotes + self.eop)
@@ -19,7 +19,7 @@ class Head():
         self.totalPkgs = total
         self.pkgNmbr = pkgNmbr
         if self.msgType == 1 or self.msgType == 2:
-            self.size == 0
+            self.size = 0
         else:
             self.size = payloadSize
         self.pkgRequest = pkgRequest
@@ -41,7 +41,7 @@ class Head():
         self.listHead.append(int(self.crc9).to_bytes(1, 'big'))
         self.head = b''.join(self.listHead)
 
-        return (self.listHead)
+        return (self.head)
 
 class Payload():
     def __init__(self, conteudo):

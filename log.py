@@ -20,7 +20,7 @@ class Log():
         
     def crateLog(self):
         if self.typeMsg == 3:
-            info = f'{self.time} / {self.alteration} / {self.typeMsg} / {self.size} / {self.pkgpkgNmbr_id} / {self.totalPkgs} / {self.crc}'
+            info = f'{self.time} / {self.alteration} / {self.typeMsg} / {self.size} / {self.pkgNmbr} / {self.totalPkgs} / {self.crc}'
         else:
             info = f'{self.time} / {self.alteration} / {self.typeMsg} / {self.size}'
         return info
