@@ -22,7 +22,6 @@ def main():
     sizePkg = payload.tamanhoPacote()
     pkgNmbr = payload.nPacote()
 
-    crc = Log.crc(pkgSize)
 
     try:
 
@@ -77,10 +76,10 @@ def main():
             count = 1
             start_time = time.time()
             while count <= totalPkg:
-                
-                head = Head(type, totalPkg, pkgNmbr[count-1], sizePkg[count-1], 0, crc).creatHead()
-
                 pkg = data.constroiPacotes(head, pkgSize[count-1][0])
+                crc = Log.crc(pkg)
+
+                head = Head(type, totalPkg, pkgNmbr[count-1], sizePkg[count-1], 0, crc).creatHead()
 
                 print(f'Package to be sent: {count}: {pkg}')
                 time.sleep(1)

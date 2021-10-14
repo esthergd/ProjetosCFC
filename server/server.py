@@ -3,6 +3,7 @@ import time
 from functions import *
 from log import*
 import traceback
+from crccheck.crc import Crc16
 
 serialName = "COM4"
 
@@ -81,13 +82,15 @@ def main():
 
                 pkg, nRx = data.com1.getData(pkgSize)
 
+                crcConfirm = Crc16.calc(pkg)
+
                 logType3 = Log(pkg, 'recieve')
                 msgType3 = logType3.crateLog()
                 logType3.writeLog(msgType3, 'Server1.txt')
 
                 eop, nRx = data.com1.getData(4)
 
-                if eop == b'\xFF\xAA\xFF\xAA' and pkgNmbr == count:
+                if eop == b'\xFF\xAA\xFF\xAA' and pkgNmbr == count and crcConfirm == crc:
                     lastPkg = pkgNmbr
 
                     head4 = Head(4, 0, 0, 0, 0, lastPkg, 0, 0).creatHead()
