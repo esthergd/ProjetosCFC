@@ -1,8 +1,8 @@
 from enlace import *
 import time
 from functions import *
-from log import *
-from serial import *
+from log import*
+import traceback
 
 serialName = "COM4"
 
@@ -25,7 +25,7 @@ def main():
         idle = True
 
         while idle:
-            print('Server open and ready to comunicate')
+            print('Server opened and ready to comunicate')
             print('###########################################')
 
             rxBuffer, nRx = data.com1.getData(14)
@@ -75,9 +75,9 @@ def main():
                 pkgNmbr = head[4]
                 pkgSize = head[5]
                 crc = head[8:10]
-                print('Type of packege: ''{}'.format(typeMsg))
-                print('Size of the packege: ''{}'.format(pkgSize))
-                print('Amount of packeges: ''{}'.format(totalPkgs))
+                print('Type of package: ''{}'.format(typeMsg))
+                print('Size of the package: ''{}'.format(pkgSize))
+                print('Amount of packages: ''{}'.format(totalPkgs))
                 print('CRC: ''{}'.format(crc))
 
                 pkg, nRx = data.com1.getData(pkgSize)
@@ -91,7 +91,7 @@ def main():
                 if eop == b'\xFF\xAA\xFF\xAA' and pkgNmbr == count:
                     lastPkg = pkgNmbr
 
-                    head4 = Head(4, 0, pkgNmbr[count-1], 0, 0, lastPkg, 0, 0).creatHead()
+                    head4 = Head(4, 0, 0, 0, 0, lastPkg, 0, 0).creatHead()
                     pkg4 = head4 + eop
                     data.com1.sendData(pkg4)
 
@@ -140,6 +140,7 @@ def main():
         data.com1.disable()
 
     except Exception as exception:
+        print(traceback.format_exc())
         print(exception)
         data.com1.disable()
 
