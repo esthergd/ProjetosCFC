@@ -1,4 +1,5 @@
 from datetime import datetime
+from crccheck.crc import Crc16
 
 class Log():
     def __init__(self, info, alteration):
@@ -20,9 +21,9 @@ class Log():
         
     def crateLog(self):
         if self.typeMsg == 3:
-            info = f'{self.time} / {self.alteration} / {self.typeMsg} / {self.size} / {self.pkgpkgNmbr_id} / {self.totalPkgs} / {self.crc}'
+            info = f'\n {self.time} / {self.alteration} / {self.typeMsg} / {self.size} / {self.pkgNmbr} / {self.totalPkgs} / {self.crc}'
         else:
-            info = f'{self.time} / {self.alteration} / {self.typeMsg} / {self.size}'
+            info = f'\n {self.time} / {self.alteration} / {self.typeMsg} / {self.size}'
         return info
 
     def writeLog(self, create, fileName):
@@ -30,5 +31,9 @@ class Log():
         file = open(fileName, 'a')
         for create in self.all:
             file.write(create)
-            file.write('/n')
             file.close()
+
+    def crc(self, data):
+        crc = Crc16.calc(data)
+        return crc
+    

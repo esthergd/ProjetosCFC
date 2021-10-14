@@ -1,7 +1,8 @@
 from enlace import *
 import time
 from functions import *
-from log import*
+from log import *
+from serial import *
 
 serialName = "COM4"
 
@@ -16,7 +17,6 @@ def main():
 
     pkgSize = payload.quebraPacote()
     totalPkg = payload.totalPacotes()
-    sizePkg = payload.tamanhoPacote()
     pkgNmbr = payload.nPacote()
 
     try:
@@ -89,7 +89,6 @@ def main():
                 eop, nRx = data.com1.getData(4)
 
                 if eop == b'\xFF\xAA\xFF\xAA' and pkgNmbr == count:
-
                     lastPkg = pkgNmbr
 
                     head4 = Head(4, 0, pkgNmbr[count-1], 0, 0, lastPkg, 0, 0).creatHead()
@@ -102,9 +101,7 @@ def main():
 
                     count += 1
                 else:
-
                     previousPkg = count - 1
-                    
                     head6 = Head(6, 0, 0, 0, previousPkg, 0, 0, 0,).creatHead()
                     pkg6 = head6 + eop
                     data.com1.sendData(pkg6)
@@ -146,3 +143,5 @@ def main():
         print(exception)
         data.com1.disable()
 
+if __name__ == "__main__":
+    main()
