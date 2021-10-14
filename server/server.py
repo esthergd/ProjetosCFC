@@ -54,10 +54,9 @@ def main():
         msgType2 = logtype2.crateLog()
         logtype2.writeLog(msgType2, 'Server1.txt')
 
-        while count <= packages:
+        start_time = time.time()
 
-            timer1 = time.time()
-            timer2 = time.time()
+        while count <= packages:
 
             head, nRx = data.com1.getData(10)
 
@@ -100,6 +99,7 @@ def main():
                     logMsg4.writeLog(msgType4, 'Server1.txt')
 
                     count += 1
+                    start_time = time.time()
                 else:
                     previousPkg = count - 1
                     head6 = Head(6, 0, 0, 0, previousPkg, 0, 0, 0,).creatHead()
@@ -112,7 +112,7 @@ def main():
             
             else:
                 time.sleep(1)
-                if time.time() - timer2 > 20:
+                if time.time() - start_time > 20:
                     idle = True
 
                     head5 = Head(5, 0, 0, 0, 0, 0, 0, 0)
@@ -125,7 +125,7 @@ def main():
 
                     data.com1.disable()
                 else:
-                    if time.time() - timer1 > 2:
+                    if head == "SENDAGAIN":
 
                         head4 = Head(4, 0, pkgNmbr[count-1], 0, 0, lastPkg, 0, 0).creatHead()
                         pkg4 = head4 + eop

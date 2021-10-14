@@ -24,7 +24,6 @@ def main():
 
     crc = Log.crc(pkgSize)
 
-
     try:
 
         print('Comunication was open with success')
@@ -76,9 +75,9 @@ def main():
                     pass
         if type == 3:
             count = 1
-            
+            start_time = time.time()
             while count <= totalPkg:
-                start_time = time.time()
+                
                 head = Head(type, totalPkg, pkgNmbr[count-1], sizePkg[count-1], 0, crc).creatHead()
 
                 pkg = data.constroiPacotes(head, pkgSize[count-1][0])
@@ -96,7 +95,7 @@ def main():
 
                 print(data.com1.rx.buffer)
                 
-                rxBuffer, nRx = data.com1.getData(14, start_time)
+                rxBuffer, nRx = data.com1.getData(14)
 
                 rsp3 = rxBuffer
                 typeRsp = rxBuffer[0]
@@ -121,7 +120,7 @@ def main():
                         log3Rsp.writeLog(rspMsg3, 'Client1.txt')
                         data.com1.rx.clearBuffer()
                     else:
-                        if rxBuffer == "TIME_OUT":
+                        if start_time - time.time() > 20:
                             print(f'20 Seconds have passed, ending communication with server')
 
                             type = 5
