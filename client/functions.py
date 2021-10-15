@@ -12,7 +12,7 @@ class Datagram():
         return (head + pacotes + self.eop)
 
 class Head():
-    def __init__(self, type, total, pkgNmbr, payloadSize, pkgRequest, lastPkg, crc8, crc9):
+    def __init__(self, type, total, pkgNmbr, payloadSize, pkgRequest, lastPkg, crc89):
         self.msgType = type
         self.serverId = 44
         self.sensorId = 22
@@ -24,8 +24,7 @@ class Head():
             self.size = payloadSize
         self.pkgRequest = pkgRequest
         self.lastPkg = lastPkg
-        self.crc8 = crc8
-        self.crc9 = crc9
+        self.crc89 = crc89
         self.listHead = []
 
     def creatHead(self):
@@ -37,8 +36,7 @@ class Head():
         self.listHead.append(int(self.size).to_bytes(1, 'big'))
         self.listHead.append(int(self.pkgRequest).to_bytes(1, 'big'))
         self.listHead.append(int(self.lastPkg).to_bytes(1, 'big'))
-        self.listHead.append(int(self.crc8).to_bytes(1, 'big'))
-        self.listHead.append(int(self.crc9).to_bytes(1, 'big'))
+        self.listHead.append(int(self.crc89).to_bytes(2, 'big'))
         self.head = b''.join(self.listHead)
 
         return (self.head)

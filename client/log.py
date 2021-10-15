@@ -1,4 +1,5 @@
 from datetime import datetime
+from crccheck.crc import Crc16
 
 class Log():
     def __init__(self, info, alteration):
@@ -31,3 +32,8 @@ class Log():
         for create in self.all:
             file.write(create)
             file.close()
+
+    def crc(self, data):
+        crc = Crc16.calc(data)
+        return crc
+    
