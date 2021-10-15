@@ -4,9 +4,9 @@ from functions import *
 from log import*
 import traceback
 
-serialName = "COM9"
+serialName = "COM6"
 
-imgPath = 'ferro.jpg'
+imgPath = 'texto.txt'
 with open(imgPath, 'rb') as file:
     imageByte = file.read()
 
@@ -17,7 +17,6 @@ def main():
 
     pkgSize = payload.quebraPacote()
     totalPkg = payload.totalPacotes()
-    sizePkg = payload.tamanhoPacote()
     pkgNmbr = payload.nPacote()
 
     try:
@@ -55,10 +54,9 @@ def main():
         msgType2 = logtype2.crateLog()
         logtype2.writeLog(msgType2, 'Server1.txt')
 
-        while count <= packages:
+        startTime = time.time()
 
-            timer1 = time.time()
-            timer2 = time.time()
+        while count <= packages:
 
             head, nRx = data.com1.getData(10)
 
@@ -116,10 +114,10 @@ def main():
             
             else:
                 time.sleep(1)
-                if time.time() - timer2 > 20:
+                if time.time() - startTime > 20:
                     idle = True
 
-                    head5 = Head(5, 0, 0, 0, 0, 0, 0, 0)
+                    head5 = Head(5, 0, 0, 0, 0, 0, 0, 0).creatHead()
                     pkg5 = head5 + eop
                     data.com1.sendData(pkg5)
 
@@ -129,7 +127,7 @@ def main():
 
                     data.com1.disable()
                 else:
-                    if time.time() - timer1 > 2:
+                    if rxBuffer == "SENDAGAIN":
 
                         head4 = Head(4, 0, pkgNmbr[count-1], 0, 0, lastPkg, 0, 0).creatHead()
                         pkg4 = head4 + eop

@@ -20,9 +20,9 @@ class Log():
         
     def crateLog(self):
         if self.typeMsg == 3:
-            info = f'{self.time} / {self.alteration} / {self.typeMsg} / {self.size} / {self.pkgNmbr} / {self.totalPkgs} / {self.crc}'
+            info = f'\n {self.time} / {self.alteration} / {self.typeMsg} / {self.size} / {self.pkgNmbr} / {self.totalPkgs} / {self.crc}'
         else:
-            info = f'{self.time} / {self.alteration} / {self.typeMsg} / {self.size}'
+            info = f'\n {self.time} / {self.alteration} / {self.typeMsg} / {self.size}'
         return info
 
     def writeLog(self, create, fileName):
@@ -30,5 +30,4 @@ class Log():
         file = open(fileName, 'a')
         for create in self.all:
             file.write(create)
-            file.write('/n')
             file.close()

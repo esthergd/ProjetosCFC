@@ -68,7 +68,10 @@ class RX(object):
         return(b)
 
     def getNData(self, size):
+        timer1 = time.time()
         while(self.getBufferLen() < size):
+            if time.time() - timer1 > 2:
+                return "SENDAGAIN"
             time.sleep(0.05)     
         return(self.getBuffer(size))
 
