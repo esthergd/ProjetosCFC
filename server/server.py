@@ -3,7 +3,7 @@ import time
 from functions import *
 from log import*
 import traceback
-from crccheck.crc import Crc16
+import sys
 
 serialName = "COM6"
 
@@ -15,6 +15,7 @@ def main():
     eop = b'\xFF\xAA\xFF\xAA'
     data = Datagram(serialName)
     payload = Payload(imageByte)
+    results = []
 
     pkgSize = payload.quebraPacote()
     totalPkg = payload.totalPacotes()
@@ -75,22 +76,17 @@ def main():
                 pkgNmbr = head[4]
                 pkgSize = head[5]
                 crc = head[8:10]
-                print('Type of package: ''{}'.format(typeMsg))
-                print('Size of the package: ''{}'.format(pkgSize))
-                print('Amount of packages: ''{}'.format(totalPkgs))
-                print('CRC: ''{}'.format(crc))
+                print(f'Type of package: {typeMsg}')
+                print(f'Size of the package: {pkgSize}')
+                print(f'Amount of packages: {totalPkgs}')
+                print(f'NmbrPkg {pkgNmbr}')
+                print(f'CRC: {crc}')
 
                 pkg, nRx = data.com1.getData(pkgSize)
 
-                crcConfirm = Crc16.calc(pkg)
-
-                logType3 = Log(pkg, 'recieve')
-                msgType3 = logType3.crateLog()
-                logType3.writeLog(msgType3, 'Server1.txt')
-
                 eop, nRx = data.com1.getData(4)
 
-                if eop == b'\xFF\xAA\xFF\xAA' and pkgNmbr == count and crcConfirm == crc:
+                if eop == b'\xFF\xAA\xFF\xAA' and pkgNmbr == count:
                     lastPkg = pkgNmbr
 
                     head4 = Head(4, 0, 0, 0, 0, lastPkg, 0, 0).creatHead()
@@ -102,7 +98,7 @@ def main():
                     logMsg4.writeLog(msgType4, 'Server1.txt')
 
                     count += 1
-                    start_time = time.time()
+                    startTime = time.time()
                 else:
                     previousPkg = count - 1
                     head6 = Head(6, 0, 0, 0, previousPkg, 0, 0, 0,).creatHead()
@@ -127,6 +123,7 @@ def main():
                     logMsg5.writeLog(msgType5, 'Server1.txt')
 
                     data.com1.disable()
+                    sys.exit()
                 else:
                     if rxBuffer == "SENDAGAIN":
 
@@ -138,9 +135,19 @@ def main():
                         msgType4 = logMsg4.crateLog()
                         logMsg4.writeLog(msgType4, 'Server1.txt')
 
-                        timer1 = time.time()
+                        startTime = time.time()
 
+        allResults = b''
+        for i in results:
+            allResults += i
+        
+        f = open("copy.txt", "wb")
+        f.write(allResults)
+        f.close
+
+        time.sleep(1)
         data.com1.disable()
+        sys.exit()
 
     except Exception as exception:
         print(traceback.format_exc())

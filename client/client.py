@@ -18,6 +18,7 @@ def main():
     data = Datagram(port = serialName)
     payload = Payload(imageByte)
     eop = b'\xFF\xAA\xFF\xAA'
+    resultados = []
 
     pkgSize = payload.quebraPacote()
     totalPkg = payload.totalPacotes()
@@ -112,7 +113,7 @@ def main():
                         print(f'5 seconds have passed, sending pkg {count} again')
 
                         data.com1.sendData(pkg)
-                        log3Rsp = Log(head, 'receive')
+                        log3Rsp = Log(head, 'send')
                         rspMsg3 = log3Rsp.crateLog()
                         log3Rsp.writeLog(rspMsg3, 'Client1.txt')
                     else:
@@ -147,11 +148,10 @@ def main():
                             logType6.writeLog(type6Msg, 'Client1.txt')
                             
                             startTime = time.time()
-                        pass
-                        
+                    
             print('All packages was sent. Ending communication')
+            time.sleep(1)
             data.com1.disable()
-
 
     except Exception as exception:
         print(traceback.format_exc())
