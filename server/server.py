@@ -22,7 +22,7 @@ def main():
     pkgNmbr = payload.nPacote()
 
     try:
-        packages = 255
+        totalPkgs = 255
         count = 1
         idle = True
 
@@ -58,7 +58,7 @@ def main():
 
         startTime = time.time()
 
-        while count <= packages:
+        while count <= totalPkgs:
 
             head, nRx = data.com1.getData(10)
 
@@ -96,6 +96,8 @@ def main():
                     logMsg4 = Log(pkg4, 'send')
                     msgType4 = logMsg4.crateLog()
                     logMsg4.writeLog(msgType4, 'Server1.txt')
+
+                    results.append(pkg)
 
                     count += 1
                     startTime = time.time()
@@ -141,7 +143,7 @@ def main():
         for i in results:
             allResults += i
         
-        f = open("copy.txt", "wb")
+        f = open("copy1.txt", "wb")
         f.write(allResults)
         f.close
 
