@@ -28,7 +28,7 @@ def main():
     print("Inicializando encoder")
     
     dictFreq = {'1':[1209, 697], '2':[1336, 697], '3':[1477, 697], '4':[1209, 770], '5':[1336, 770], '6':[1477, 770],
-    '7':[1209, 852], '8':[1336, 852], '9':[1477, 852], '0':[1336, 941]}
+    '7':[1209, 852], '8':[1336, 852], '9':[1477, 852], '0':[1336, 941], 'A':[1633, 697], 'B':[1633, 770], 'C':[1633, 852], 'D':[1633, 941]}
     #declare um objeto da classe da sua biblioteca de apoio (cedida)  
     signal = signalMeu()
     fs = 44100 #declare uma variavel com a frequencia de amostragem, sendo 44100
