@@ -33,7 +33,7 @@ def main():
     signal = signalMeu()
     fs = 44100 #declare uma variavel com a frequencia de amostragem, sendo 44100
     amplitude = 1.5
-    time = 2
+    time = 2 
 
     t = np.linspace(-time/2, time/2, time*fs)
     
@@ -44,7 +44,7 @@ def main():
     gainX  = 0.3
     gainY  = 0.3
 
-    number = input('Digite uma tecla de 0 a 9: ')
+    number = input('Digite uma tecla de 0 a 9 ou de A a D: ')
 
     f1, f2 = getFreq(dictFreq, number)
 

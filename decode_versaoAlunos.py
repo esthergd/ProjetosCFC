@@ -15,21 +15,34 @@ import peakutils
 dictFreq = {'1':[1209, 697], '2':[1336, 697], '3':[1477, 697], '4':[1209, 770], '5':[1336, 770], '6':[1477, 770],
     '7':[1209, 852], '8':[1336, 852], '9':[1477, 852], '0':[1336, 941], 'A':[1633, 697], 'B':[1633, 770], 'C':[1633, 852], 'D':[1633, 941]}
 
-def freqNumbr(freqs):
-    freqX = [1209, 1336, 1477, 1633]
-    freqY = [697, 770, 852, 941]
-    closeX = 50
-    closeY = 50
-    for freq in freqX:
-        if abs(freq - freqs[0]) < closeX:
-            closeX = abs(freq-freqs[0])
-            freq1 = freq
-    for freq in freqY:
-        if abs(freq - freqs[0]) < closeY:
-            closeY = abs(freq-freqs[0])
-            freq2 = freq
-    frequencias = [freq1, freq2]
-    return frequencias
+def pressedNmbr(freqs):
+    if int(freqs[0]) == 697:
+        if int(freqs[1]) ==1209:
+            return '1'
+        elif int(freqs[1]) ==1336:
+            return '2'
+        elif int(freqs[1]) ==1477:
+            return '3'
+    elif int(freqs[0]) ==770:
+        if int(freqs[1]) ==1209:
+            return '4'
+        elif int(freqs[1]) ==1336:
+            return '5'
+        elif int(freqs[1]) == 1477:
+            return '6'
+    elif int(freqs[0]) ==852:
+        if int(freqs[1]) ==1209:
+            return '7'
+        elif int(freqs[1]) ==1336:
+            return '8'
+        elif int(freqs[1]) ==1477:
+            return '9'
+    elif int(freqs[0]) == 941:
+        return '0'
+    else:
+        print ("Error")
+        
+
 #funcao para transformas intensidade acustica em dB
 def todB(s):
     sdB = 10*np.log10(s)
@@ -47,7 +60,7 @@ def main():
     sd.default.samplerate = 1
     sd.default.channels = 2  #voce pode ter que alterar isso dependendo da sua placa
 
-    print('A Captação irá começar em 1 segundo')
+    print('A Captação irá começar em 3 segundo')
     time.sleep(1)
 
     # faca um print na tela dizendo que a captacao comecará em n segundos. e entao 
@@ -99,17 +112,10 @@ def main():
         freqs.append(freq)
         print("freq de pico sao {}" .format(freq))
 
-    
-    
-    
     #printe os picos encontrados! 
-    print(freqNumbr(freqs))
+    tecla = pressedNmbr(freqs)
 
-    frequenciasEncontradas = freqNumbr(freqs)
-
-    for chave in dictFreq:
-        if dictFreq[chave] == frequenciasEncontradas:
-            print(f"A tecla apertada foi {chave}")
+    print(f"A tecla apertada foi {tecla}")
     
     #encontre na tabela duas frequencias proximas às frequencias de pico encontradas e descubra qual foi a tecla
   
