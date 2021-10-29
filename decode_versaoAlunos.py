@@ -23,6 +23,9 @@ def pressedNmbr(freqs):
             return '2'
         elif int(freqs[1]) ==1477:
             return '3'
+        elif int(freqs[1]) ==1633:
+            return 'A'
+            
     elif int(freqs[0]) ==770:
         if int(freqs[1]) ==1209:
             return '4'
@@ -30,6 +33,9 @@ def pressedNmbr(freqs):
             return '5'
         elif int(freqs[1]) == 1477:
             return '6'
+        elif int(freqs[1]) == 1633:
+            return 'B'
+
     elif int(freqs[0]) ==852:
         if int(freqs[1]) ==1209:
             return '7'
@@ -37,8 +43,18 @@ def pressedNmbr(freqs):
             return '8'
         elif int(freqs[1]) ==1477:
             return '9'
+        elif int(freqs[1]) ==1633:
+            return 'C'
     elif int(freqs[0]) == 941:
-        return '0'
+        if int(freqs[1])==1209:
+            return 'X'
+        if int(freqs[1])==1336:
+            return '0'
+        elif int(freqs[1])==1633:
+            return 'D'
+        elif int(freqs[1]) ==1477:
+            return '#'
+
     else:
         print ("Error")
         
@@ -98,7 +114,6 @@ def main():
     plt.plot(xf,yf)
     plt.grid()
     plt.title('Fourier audio')
-    plt.xlim(0, 1000)
     
 
     #esta funcao analisa o fourier e encontra os picos
