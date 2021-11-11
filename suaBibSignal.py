@@ -30,8 +30,9 @@ class signalMeu:
         yf = fft(signal*W)
         return(xf, np.abs(yf[0:N//2]))
 
-    def plotFFT(self, signal, fs):
+    def plotFFT(self, signal, fs, title):
         x,y = self.calcFFT(signal, fs)
-        plt.figure()
+        plt.figure(figsize = (20, 14))
         plt.plot(x, np.abs(y))
-        plt.title('Fourier')
+        plt.title(title)
+        plt.show()
